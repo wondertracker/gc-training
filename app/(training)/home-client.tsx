@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
@@ -23,6 +23,13 @@ export function HomeClient({ profile, session, progress, certificate, modules: i
   const router = useRouter();
   const [lang, setLang] = useState(initialLang);
   const modules = MODULES(lang);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("gc-lang");
+    if (stored && stored !== initialLang) {
+      setLang(stored);
+    }
+  }, [initialLang]);
 
   function getModuleProgress(index: number) {
     return progress.find((p) => p.module_index === index);

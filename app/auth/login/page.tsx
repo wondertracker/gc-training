@@ -2,7 +2,7 @@
 
 export const dynamic = 'force-dynamic';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { GCSigil } from "@/components/gc-sigil";
@@ -10,6 +10,18 @@ import { GCSigil } from "@/components/gc-sigil";
 export default function LoginPage() {
   const router = useRouter();
   const [tab, setTab] = useState<"signin" | "register">("signin");
+  const [lang, setLang] = useState<"EN" | "FR">("EN");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("gc-lang");
+    if (stored === "fr") setLang("FR");
+  }, []);
+
+  function toggleLang() {
+    const next = lang === "EN" ? "FR" : "EN";
+    setLang(next);
+    localStorage.setItem("gc-lang", next.toLowerCase());
+  }
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -65,7 +77,24 @@ export default function LoginPage() {
     "w-full bg-transparent border border-gc-mid-blue text-gc-cream placeholder-gc-dim px-4 py-3 text-sm font-sans focus:outline-none focus:border-gc-gold transition-colors";
 
   return (
-    <div className="min-h-screen bg-gc-dark-blue flex flex-col items-center justify-center px-4 py-16">
+    <div className="relative min-h-screen bg-gc-dark-blue flex flex-col items-center justify-center px-4 py-16">
+      <button
+        onClick={toggleLang}
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+          fontSize: "10px",
+          letterSpacing: "0.18em",
+          color: "#7A8A9E",
+          border: "1px solid #1B3A6B",
+          padding: "4px 12px",
+          background: "none",
+          cursor: "pointer",
+        }}
+      >
+        {lang === "EN" ? "FR" : "EN"}
+      </button>
       {/* Logo */}
       <div className="mb-6 flex justify-center">
         <GCSigil size={80} />
