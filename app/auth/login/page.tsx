@@ -66,9 +66,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gc-dark-blue flex flex-col items-center justify-center px-4 py-16">
-      {/* Sigil */}
-      <div className="mb-6">
-        <GCSigil size={72} color="#C9A84C" />
+      {/* Logo */}
+      <div className="mb-6 flex justify-center">
+        <GCSigil size={80} />
       </div>
 
       {/* Wordmark */}
