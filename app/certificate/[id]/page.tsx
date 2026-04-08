@@ -79,7 +79,7 @@ export default async function CertificatePage({ params }: { params: { id: string
       <main className="max-w-2xl mx-auto px-6 py-16 print:py-8 print:text-black">
         {/* Sigil */}
         <div className="flex justify-center mb-6 print:mb-4">
-          <GCSigil size={80} color="#C9A84C" />
+          <GCSigil size={80} />
         </div>
 
         {/* House name */}

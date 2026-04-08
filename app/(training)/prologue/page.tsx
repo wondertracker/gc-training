@@ -17,7 +17,7 @@ export default function ProloguePage() {
       {/* Sticky header */}
       <header className="sticky top-0 z-10 bg-gc-dark-blue border-b border-gc-mid-blue px-6 py-4 flex items-center justify-between no-print">
         <div className="flex items-center gap-4">
-          <GCSigil size={32} color="#C9A84C" />
+          <GCSigil size={32} />
           <Link
             href="/"
             className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-gold transition-colors"

@@ -57,7 +57,7 @@ export function HomeClient({ profile, session, progress, certificate, modules: i
       {/* Header */}
       <header className="border-b border-gc-mid-blue px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <GCSigil size={40} color="#C9A84C" />
+          <GCSigil size={40} />
           <div>
             <p className="text-gc-gold font-sans text-xs tracking-[0.25em]">GRANDE CHARTE</p>
             <p className="text-gc-dim font-sans text-xs tracking-widest">

@@ -67,7 +67,7 @@ export default function ModulePage() {
       <header className="sticky top-0 z-10 bg-gc-dark-blue border-b border-gc-mid-blue px-4 md:px-6 py-4 no-print">
         <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
           <div className="flex items-center gap-3 min-w-0">
-            <GCSigil size={28} color="#C9A84C" />
+            <GCSigil size={28} />
             <div className="min-w-0">
               <Link href="/" className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-gold transition-colors block">
                 ← {L ? "ALL MODULES" : "TOUS LES MODULES"}

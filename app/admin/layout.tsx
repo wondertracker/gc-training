@@ -20,7 +20,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       {/* Sidebar */}
       <aside className="w-56 border-r border-gc-mid-blue flex flex-col flex-shrink-0">
         <div className="px-5 py-6 border-b border-gc-mid-blue">
-          <GCSigil size={32} color="#C9A84C" />
+          <GCSigil size={32} />
           <p className="font-sans text-xs tracking-[0.25em] text-gc-gold mt-3">GRANDE CHARTE</p>
           <p className="font-sans text-xs tracking-widest text-gc-dim">ADMIN</p>
         </div>

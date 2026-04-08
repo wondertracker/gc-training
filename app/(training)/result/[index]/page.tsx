@@ -50,7 +50,7 @@ export default async function ResultPage({ params }: { params: { index: string }
     <div className="min-h-screen bg-gc-dark-blue text-gc-cream">
       <header className="border-b border-gc-mid-blue px-4 md:px-6 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <GCSigil size={28} color="#C9A84C" />
+          <GCSigil size={28} />
           <div>
             <p className="text-gc-gold font-sans text-xs tracking-[0.25em]">GRANDE CHARTE</p>
             <p className="text-gc-dim font-sans text-xs tracking-widest">
