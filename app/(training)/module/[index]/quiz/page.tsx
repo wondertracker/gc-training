@@ -199,8 +199,9 @@ export default function QuizPage() {
             .from("certificates")
             .select("id")
             .eq("session_id", activeSessionId)
-            .single();
+            .maybeSingle();
           console.log('certificate SELECT result', { data, error });
+          if (error) console.error('certificate SELECT error:', error);
           existingCert = data;
         } catch (err) {
           console.error('certificate SELECT threw:', err);
@@ -218,24 +219,42 @@ export default function QuizPage() {
             .eq("id", userId)
             .single();
 
+          const certPayload = {
+            session_id: activeSessionId,
+            user_id: userId,
+            participant_name: profile?.full_name ?? "",
+            overall_score: totalScore,
+            overall_total: 18,
+            language: profile?.language ?? "en",
+          };
+          console.log('certificate INSERT payload:', certPayload);
+
           try {
-            const { data, error } = await supabase.from("certificates").insert({
-              session_id: activeSessionId,
-              user_id: userId,
-              participant_name: profile?.full_name ?? "",
-              overall_score: totalScore,
-              overall_total: 18,
-              language: profile?.language ?? "en",
-            });
-            console.log('certificate INSERT result', { data, error });
+            const { data, error } = await supabase
+              .from("certificates")
+              .insert(certPayload)
+              .select();
+            if (error) {
+              console.error('certificate INSERT error:', {
+                message: error.message,
+                code: error.code,
+                details: error.details,
+                hint: error.hint,
+              });
+            } else {
+              console.log('certificate INSERT success:', data);
+            }
           } catch (err) {
             console.error('certificate INSERT threw:', err);
           }
 
-          await supabase
+          const { error: sessionUpdateError } = await supabase
             .from("training_sessions")
             .update({ completed_at: new Date().toISOString() })
             .eq("id", activeSessionId);
+          if (sessionUpdateError) {
+            console.error('training_sessions UPDATE error:', sessionUpdateError);
+          }
         }
       }
 
