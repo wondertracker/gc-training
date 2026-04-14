@@ -3,11 +3,7 @@ export const dynamic = 'force-dynamic';
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
-
-function formatDate(dateStr: string): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
+import { formatDateShort } from "@/lib/utils";
 
 export default async function TraineesPage({
   searchParams,
@@ -18,19 +14,27 @@ export default async function TraineesPage({
   const query = searchParams.q ?? "";
   const sort = searchParams.sort ?? "name";
 
-  // Fetch all trainee profiles with sessions and progress
+  // Fetch all profiles with sessions and progress (no role filter)
   const { data: profiles } = await supabase
     .from("profiles")
     .select(`
-      id, full_name, language, created_at, role,
+      *,
       training_sessions (
-        id, started_at, completed_at,
-        module_progress ( module_index, best_score, passed, attempts, passed_at ),
+        id,
+        started_at,
+        completed_at,
+        module_progress (
+          module_index,
+          module_label,
+          best_score,
+          total_questions,
+          passed,
+          attempts
+        ),
         certificates ( id, overall_score, overall_total, issued_at )
       )
     `)
-    .eq("role", "trainee")
-    .order("full_name");
+    .order("created_at", { ascending: false });
 
   // Filter and enrich
   let rows = (profiles ?? []).map((p: any) => {
@@ -67,9 +71,10 @@ export default async function TraineesPage({
     rows.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   } else if (sort === "completion") {
     rows.sort((a, b) => (b.cert ? 1 : 0) - (a.cert ? 1 : 0) || b.modulesPassed - a.modulesPassed);
-  } else {
-    rows.sort((a, b) => a.full_name.localeCompare(b.full_name));
+  } else if (sort === "name") {
+    rows.sort((a, b) => (a.full_name ?? "").localeCompare(b.full_name ?? ""));
   }
+  // default order already from DB: created_at desc
 
   return (
     <div className="p-8">
@@ -142,7 +147,7 @@ export default async function TraineesPage({
                     {row.full_name}
                   </Link>
                 </td>
-                <td className="px-4 py-3 font-sans text-xs text-gc-dim">{formatDate(row.created_at)}</td>
+                <td className="px-4 py-3 font-sans text-xs text-gc-dim">{formatDateShort(row.created_at)}</td>
                 <td className="px-4 py-3 font-sans text-xs text-gc-dim uppercase">{row.language}</td>
                 <td className="px-4 py-3 text-center">
                   <span className={`font-sans text-xs ${row.modulesPassed === 6 ? "text-gc-green" : "text-gc-dim"}`}>
@@ -165,7 +170,7 @@ export default async function TraineesPage({
                       href={`/certificate/${row.cert.id}`}
                       className="font-sans text-xs text-gc-gold hover:underline"
                     >
-                      {formatDate(row.cert.issued_at)}
+                      {formatDateShort(row.cert.issued_at)}
                     </Link>
                   ) : (
                     <span className="font-sans text-xs text-gc-mid-blue">—</span>

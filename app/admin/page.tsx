@@ -2,20 +2,15 @@ export const dynamic = 'force-dynamic';
 
 import { createClient } from "@/lib/supabase/server";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
-
-function formatDate(dateStr: string): string {
-  const date = new Date(dateStr);
-  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
+import { formatDateShort } from "@/lib/utils";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
 
-  // Total trainees
+  // Total trainees — count all profiles (no role filter; profiles may not have role='trainee')
   const { count: traineeCount } = await supabase
     .from("profiles")
-    .select("*", { count: "exact", head: true })
-    .eq("role", "trainee");
+    .select("*", { count: "exact", head: true });
 
   // Total sessions
   const { count: sessionCount } = await supabase
@@ -137,7 +132,7 @@ export default async function AdminDashboard() {
                     {cert.overall_score}/{cert.overall_total} · {Math.round((cert.overall_score / cert.overall_total) * 100)}%
                   </p>
                 </div>
-                <p className="font-sans text-xs text-gc-dim">{formatDate(cert.issued_at)}</p>
+                <p className="font-sans text-xs text-gc-dim">{formatDateShort(cert.issued_at)}</p>
               </div>
             ))}
           </div>
