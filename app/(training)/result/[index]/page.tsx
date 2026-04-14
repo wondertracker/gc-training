@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic';
 
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GCSigil } from "@/components/gc-sigil";
@@ -12,16 +12,25 @@ export default async function ResultPage({ params }: { params: { index: string }
 
   const moduleIndex = parseInt(params.index, 10);
 
+  // Guard: invalid or out-of-bounds index
+  if (isNaN(moduleIndex) || moduleIndex < 0) notFound();
+
   const { data: profile } = await supabase
-    .from("profiles").select("*").eq("id", user.id).single();
+    .from("profiles").select("*").eq("id", user.id).maybeSingle();
   const lang = profile?.language ?? "en";
   const L = lang === "en";
 
   const modules = MODULES(lang);
+
+  // Guard: index beyond last module
+  if (moduleIndex >= modules.length) notFound();
+
   const mod = modules[moduleIndex];
+  const isLastModule = moduleIndex >= modules.length - 1;
+  const nextModuleIndex = isLastModule ? moduleIndex : moduleIndex + 1;
 
   const { data: session } = await supabase
-    .from("training_sessions").select("id").eq("user_id", user.id).single();
+    .from("training_sessions").select("id").eq("user_id", user.id).maybeSingle();
 
   let progress = null;
   if (session) {
@@ -30,7 +39,7 @@ export default async function ResultPage({ params }: { params: { index: string }
       .select("*")
       .eq("session_id", session.id)
       .eq("module_index", moduleIndex)
-      .single();
+      .maybeSingle();
     progress = data;
   }
 
@@ -38,13 +47,12 @@ export default async function ResultPage({ params }: { params: { index: string }
   let certificate = null;
   if (session) {
     const { data } = await supabase
-      .from("certificates").select("*").eq("session_id", session.id).single();
+      .from("certificates").select("*").eq("session_id", session.id).maybeSingle();
     certificate = data;
   }
 
   const score = progress?.best_score ?? 0;
   const passed = progress?.passed ?? false;
-  const nextModuleIndex = moduleIndex + 1;
 
   return (
     <div className="min-h-screen bg-gc-dark-blue text-gc-cream">
@@ -113,7 +121,7 @@ export default async function ResultPage({ params }: { params: { index: string }
                   {L ? "VIEW YOUR CERTIFICATE →" : "VOIR VOTRE CERTIFICAT →"}
                 </Link>
               </div>
-            ) : moduleIndex < 5 ? (
+            ) : !isLastModule ? (
               <Link
                 href={`/module/${nextModuleIndex}`}
                 className="block w-full text-center bg-gc-gold text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-cream transition-colors mb-3"
