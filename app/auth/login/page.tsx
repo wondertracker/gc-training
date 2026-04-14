@@ -28,6 +28,24 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash.includes('type=recovery')) {
+      const params = new URLSearchParams(hash.substring(1));
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      if (accessToken) {
+        const supabase = createClient();
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        }).then(() => {
+          router.push('/auth/reset-password');
+        });
+      }
+    }
+  }, []);
+
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
