@@ -14,33 +14,42 @@ export default async function TraineesPage({
   const query = searchParams.q ?? "";
   const sort = searchParams.sort ?? "name";
 
-  // Fetch all profiles with sessions and progress (no role filter)
+  // training_sessions.user_id references auth.users(id), not profiles(id),
+  // so PostgREST can't resolve the nested relation. Fetch separately and join.
   const { data: profiles } = await supabase
     .from("profiles")
-    .select(`
-      *,
-      training_sessions (
-        id,
-        started_at,
-        completed_at,
-        module_progress (
-          module_index,
-          module_label,
-          best_score,
-          total_questions,
-          passed,
-          attempts
-        ),
-        certificates ( id, overall_score, overall_total, issued_at )
-      )
-    `)
+    .select("*")
     .order("created_at", { ascending: false });
+
+  const { data: sessions } = await supabase
+    .from("training_sessions")
+    .select("id, user_id, started_at, completed_at, language");
+
+  const sessionIds = (sessions ?? []).map((s: any) => s.id);
+
+  const { data: allProgress } = sessionIds.length > 0
+    ? await supabase
+        .from("module_progress")
+        .select("session_id, module_index, best_score, passed")
+        .in("session_id", sessionIds)
+    : { data: [] };
+
+  const { data: allCerts } = sessionIds.length > 0
+    ? await supabase
+        .from("certificates")
+        .select("id, session_id, overall_score, overall_total, issued_at")
+        .in("session_id", sessionIds)
+    : { data: [] };
 
   // Filter and enrich
   let rows = (profiles ?? []).map((p: any) => {
-    const session = p.training_sessions?.[0];
-    const progress = session?.module_progress ?? [];
-    const cert = session?.certificates?.[0];
+    const session = (sessions ?? []).find((s: any) => s.user_id === p.id);
+    const progress = session
+      ? (allProgress ?? []).filter((mp: any) => mp.session_id === session.id)
+      : [];
+    const cert = session
+      ? (allCerts ?? []).find((c: any) => c.session_id === session.id)
+      : null;
     const modulesPassed = progress.filter((mp: any) => mp.passed).length;
     const scores: (number | null)[] = [0,1,2,3,4,5].map(i => {
       const mp = progress.find((m: any) => m.module_index === i);
