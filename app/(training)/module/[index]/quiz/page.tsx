@@ -229,6 +229,7 @@ export default function QuizPage() {
           };
           console.log('certificate INSERT payload:', certPayload);
 
+          let newCertId: string | null = null;
           try {
             const { data, error } = await supabase
               .from("certificates")
@@ -243,9 +244,23 @@ export default function QuizPage() {
               });
             } else {
               console.log('certificate INSERT success:', data);
+              newCertId = data?.[0]?.id ?? null;
             }
           } catch (err) {
             console.error('certificate INSERT threw:', err);
+          }
+
+          // Send congratulations email (fire-and-forget — don't block redirect)
+          if (newCertId) {
+            fetch('/api/send-certificate-email', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                userId,
+                certificateId: newCertId,
+                language: profile?.language ?? lang,
+              }),
+            }).catch((err) => console.error('send-certificate-email fetch error:', err));
           }
 
           const { error: sessionUpdateError } = await supabase
