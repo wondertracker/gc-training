@@ -4,17 +4,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
-
-function formatDate(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", {
-    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit"
-  });
-}
-function formatDateShort(dateStr: string | null): string {
-  if (!dateStr) return "—";
-  return new Date(dateStr).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
-}
+import { formatDateTime, formatDateShort } from "@/lib/utils";
 
 const moduleLabels = [
   "Origin & Doctrine",
@@ -184,11 +174,11 @@ export default async function TraineeDetailPage({ params }: { params: { user_id:
           <div className="border border-gc-mid-blue px-5 py-4 space-y-2">
             <div className="flex justify-between">
               <span className="font-sans text-xs text-gc-dim">Started</span>
-              <span className="font-sans text-xs text-gc-cream">{formatDate(session.started_at)}</span>
+              <span className="font-sans text-xs text-gc-cream">{formatDateTime(session.started_at)}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-sans text-xs text-gc-dim">Completed</span>
-              <span className="font-sans text-xs text-gc-cream">{formatDate(session.completed_at)}</span>
+              <span className="font-sans text-xs text-gc-cream">{formatDateTime(session.completed_at)}</span>
             </div>
             <div className="flex justify-between">
               <span className="font-sans text-xs text-gc-dim">Language</span>

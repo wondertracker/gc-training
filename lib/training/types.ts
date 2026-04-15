@@ -99,7 +99,9 @@ export interface Prologue {
   quote: string;
 }
 
-// Database types
+// Database types — mirror the Supabase schema in supabase/migrations/001_initial.sql
+
+/** @database profiles — one row per authenticated user; role determines admin access. */
 export interface Profile {
   id: string;
   full_name: string;
@@ -108,6 +110,7 @@ export interface Profile {
   created_at: string;
 }
 
+/** @database training_sessions — one session per user; tracks overall progress start/end. */
 export interface TrainingSession {
   id: string;
   user_id: string;
@@ -116,6 +119,7 @@ export interface TrainingSession {
   completed_at: string | null;
 }
 
+/** @database module_progress — one row per (session, module); best_score drives unlock logic. */
 export interface ModuleProgress {
   id: string;
   session_id: string;
@@ -129,6 +133,7 @@ export interface ModuleProgress {
   passed_at: string | null;
 }
 
+/** @database certificates — auto-issued when all 6 modules are passed; id used in /certificate/[id]. */
 export interface Certificate {
   id: string;
   session_id: string;

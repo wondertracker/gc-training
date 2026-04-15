@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { BRAND } from "./lib/training/constants";
 
 const config: Config = {
   darkMode: ["class"],
@@ -20,16 +21,16 @@ const config: Config = {
     },
     extend: {
       colors: {
-        "gc-dark-blue": "#0A1628",
-        "gc-mid-blue": "#1B3A6B",
-        "gc-gold": "#C9A84C",
-        "gc-cream": "#F5F0E8",
-        "gc-warm": "#EDE8DF",
-        "gc-body": "#3A3028",
-        "gc-dim": "#7A8A9E",
-        "gc-rose": "#C4956A",
-        "gc-red": "#9B4040",
-        "gc-green": "#3A7A50",
+        "gc-dark-blue": BRAND.DARK_BLUE,
+        "gc-mid-blue": BRAND.MID_BLUE,
+        "gc-gold": BRAND.GOLD,
+        "gc-cream": BRAND.CREAM,
+        "gc-warm": BRAND.WARM,
+        "gc-body": BRAND.BODY_TEXT,
+        "gc-dim": BRAND.DIM,
+        "gc-rose": BRAND.ROSE,
+        "gc-red": BRAND.RED_ACCENT,
+        "gc-green": BRAND.GREEN_ACCENT,
       },
       fontFamily: {
         serif: ["Georgia", "Times New Roman", "serif"],
