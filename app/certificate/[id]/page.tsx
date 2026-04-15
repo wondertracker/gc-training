@@ -5,16 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { GCSigil } from "@/components/gc-sigil";
 import { MODULES } from "@/lib/training/data";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
-
-function formatDate(dateStr: string, lang: string): string {
-  const date = new Date(dateStr);
-  if (lang === "fr") {
-    const months = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
-    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-  }
-  const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
-  return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
-}
+import { formatLongDate } from "@/lib/utils";
+import { PrintButton } from "./print-button";
 
 export default async function CertificatePage({ params }: { params: { id: string } }) {
   const supabase = await createClient();
@@ -58,7 +50,7 @@ export default async function CertificatePage({ params }: { params: { id: string
   ];
   const moduleNames = L ? moduleLabelsEN : moduleNamesFR;
 
-  const issuedDate = formatDate(certificate.issued_at, lang);
+  const issuedDate = formatLongDate(certificate.issued_at, lang);
 
   return (
     <div className="min-h-screen bg-gc-dark-blue print:bg-white">
@@ -67,12 +59,7 @@ export default async function CertificatePage({ params }: { params: { id: string
         <p className="text-gc-dim font-sans text-xs tracking-widest">
           {L ? "CERTIFICATE OF INITIATION" : "CERTIFICAT D'INITIATION"}
         </p>
-        <button
-          onClick={() => window.print()}
-          className="border border-gc-gold text-gc-gold px-5 py-2 font-sans text-xs tracking-widest hover:bg-gc-gold hover:text-gc-dark-blue transition-colors"
-        >
-          {L ? "PRINT CERTIFICATE" : "IMPRIMER LE CERTIFICAT"}
-        </button>
+        <PrintButton label={L ? "PRINT CERTIFICATE" : "IMPRIMER LE CERTIFICAT"} />
       </div>
 
       {/* Certificate body */}
