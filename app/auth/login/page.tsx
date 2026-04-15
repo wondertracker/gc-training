@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic';
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { GCSigil } from "@/components/gc-sigil";
 
@@ -98,18 +99,7 @@ export default function LoginPage() {
     <div className="relative min-h-screen bg-gc-dark-blue flex flex-col items-center justify-center px-4 py-16">
       <button
         onClick={toggleLang}
-        style={{
-          position: "absolute",
-          top: "20px",
-          right: "20px",
-          fontSize: "10px",
-          letterSpacing: "0.18em",
-          color: "#7A8A9E",
-          border: "1px solid #1B3A6B",
-          padding: "4px 12px",
-          background: "none",
-          cursor: "pointer",
-        }}
+        className="absolute top-5 right-5 text-[10px] font-sans tracking-[0.18em] text-gc-dim border border-gc-mid-blue px-3 py-1 bg-transparent hover:text-gc-cream hover:border-gc-gold transition-colors duration-200"
       >
         {lang === "EN" ? "FR" : "EN"}
       </button>
@@ -165,7 +155,15 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label className="block text-gc-dim text-xs font-sans tracking-widest mb-2">PASSWORD</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-gc-dim text-xs font-sans tracking-widest">PASSWORD</label>
+                  <Link
+                    href="/auth/reset-password"
+                    className="text-gc-dim text-xs font-sans tracking-wider hover:text-gc-cream transition-colors duration-200"
+                  >
+                    {lang === "EN" ? "Forgot password?" : "Mot de passe oublié ?"}
+                  </Link>
+                </div>
                 <input
                   type="password"
                   value={password}
@@ -181,7 +179,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-4 bg-gc-gold text-gc-dark-blue py-3 text-xs font-sans tracking-widest hover:bg-gc-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-4 bg-gc-gold text-gc-dark-blue py-3 text-xs font-sans tracking-widest hover:bg-gc-cream transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "SIGNING IN…" : "SIGN IN"}
               </button>
@@ -228,7 +226,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-4 bg-gc-gold text-gc-dark-blue py-3 text-xs font-sans tracking-widest hover:bg-gc-cream transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full mt-4 bg-gc-gold text-gc-dark-blue py-3 text-xs font-sans tracking-widest hover:bg-gc-cream transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "CREATING ACCOUNT…" : "CREATE ACCOUNT"}
               </button>

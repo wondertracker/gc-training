@@ -77,8 +77,7 @@ export function HomeClient({ profile, session, progress, certificate, modules: i
           {profile?.role === "admin" && (
             <Link
               href="/admin"
-              className="font-sans text-gc-dim hover:text-gc-cream transition-colors"
-              style={{ fontSize: "10px", letterSpacing: "0.18em" }}
+              className="font-sans text-[10px] tracking-[0.18em] text-gc-dim hover:text-gc-cream transition-colors duration-200"
             >
               ADMIN →
             </Link>

@@ -76,7 +76,7 @@ export default async function ResultPage({ params }: { params: { index: string }
           <>
             {/* PASSED */}
             <div className="text-center mb-12">
-              <div className="w-16 h-16 rounded-full border-2 border-gc-green flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 border-2 border-gc-green flex items-center justify-center mx-auto mb-6">
                 <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
                   <path d="M6 14l6 6 10-10" stroke="#3A7A50" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -124,14 +124,14 @@ export default async function ResultPage({ params }: { params: { index: string }
             ) : !isLastModule ? (
               <Link
                 href={`/module/${nextModuleIndex}`}
-                className="block w-full text-center bg-gc-gold text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-cream transition-colors mb-3"
+                className="block w-full text-center bg-gc-gold text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-cream transition-colors duration-200 mb-3"
               >
                 {`MODULE ${modules[nextModuleIndex]?.number} →`}
               </Link>
             ) : (
               <Link
                 href="/"
-                className="block w-full text-center bg-gc-gold text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-cream transition-colors mb-3"
+                className="block w-full text-center bg-gc-gold text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-cream transition-colors duration-200 mb-3"
               >
                 {L ? "ALL MODULES →" : "TOUS LES MODULES →"}
               </Link>
@@ -141,16 +141,16 @@ export default async function ResultPage({ params }: { params: { index: string }
             <div className="flex gap-4 justify-center mt-4">
               <Link
                 href={`/module/${moduleIndex}/quiz`}
-                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors py-2"
+                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors duration-200 py-2"
               >
-                {L ? "Retake" : "Refaire"}
+                {L ? "RETAKE" : "REFAIRE"}
               </Link>
               <span className="text-gc-mid-blue">·</span>
               <Link
                 href="/"
-                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors py-2"
+                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors duration-200 py-2"
               >
-                {L ? "All Modules" : "Tous les Modules"}
+                {L ? "ALL MODULES" : "TOUS LES MODULES"}
               </Link>
             </div>
           </>
@@ -158,7 +158,7 @@ export default async function ResultPage({ params }: { params: { index: string }
           <>
             {/* FAILED */}
             <div className="text-center mb-12">
-              <div className="w-16 h-16 rounded-full border-2 border-gc-rose/60 flex items-center justify-center mx-auto mb-6">
+              <div className="w-16 h-16 border-2 border-gc-rose/60 flex items-center justify-center mx-auto mb-6">
                 <span className="font-serif text-gc-rose text-2xl">×</span>
               </div>
               <p className="font-sans text-xs tracking-[0.3em] text-gc-rose mb-3">
@@ -185,7 +185,7 @@ export default async function ResultPage({ params }: { params: { index: string }
             {/* Primary CTA */}
             <Link
               href={`/module/${moduleIndex}/quiz`}
-              className="block w-full text-center bg-gc-rose/80 text-gc-dark-blue py-4 font-sans text-xs tracking-widest hover:bg-gc-rose transition-colors mb-4"
+              className="block w-full text-center border border-gc-gold text-gc-gold py-4 font-sans text-xs tracking-widest hover:bg-gc-gold hover:text-gc-dark-blue transition-colors duration-200 mb-4"
             >
               {L ? "RETAKE QUIZ →" : "REFAIRE LE QUIZ →"}
             </Link>
@@ -194,16 +194,16 @@ export default async function ResultPage({ params }: { params: { index: string }
             <div className="flex gap-4 justify-center">
               <Link
                 href={`/module/${moduleIndex}`}
-                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors py-2"
+                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors duration-200 py-2"
               >
-                {L ? "Review Module" : "Revoir le Module"}
+                {L ? "REVIEW MODULE" : "REVOIR LE MODULE"}
               </Link>
               <span className="text-gc-mid-blue">·</span>
               <Link
                 href="/"
-                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors py-2"
+                className="text-gc-dim font-sans text-xs tracking-widest hover:text-gc-cream transition-colors duration-200 py-2"
               >
-                {L ? "All Modules" : "Tous les Modules"}
+                {L ? "ALL MODULES" : "TOUS LES MODULES"}
               </Link>
             </div>
           </>

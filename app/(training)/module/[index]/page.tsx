@@ -85,7 +85,7 @@ export default function ModulePage() {
             <button
               key={i}
               onClick={() => { setSectionIdx(i); window.scrollTo({ top: 0 }); }}
-              className={`h-0.5 flex-1 transition-colors ${i <= sectionIdx ? "bg-gc-gold" : "bg-gc-mid-blue"}`}
+              className={`h-0.5 flex-1 transition-colors duration-200 ${i <= sectionIdx ? "bg-gc-gold" : "bg-gc-mid-blue"}`}
               aria-label={`Section ${i + 1}`}
             />
           ))}
@@ -450,7 +450,7 @@ export default function ModulePage() {
 
           <button
             onClick={handleNext}
-            className="border border-gc-dark-blue text-gc-dark-blue px-6 py-3 font-sans text-xs tracking-widest hover:bg-gc-dark-blue hover:text-gc-cream transition-colors"
+            className="border border-gc-dark-blue text-gc-dark-blue px-6 py-3 font-sans text-xs tracking-widest hover:bg-gc-dark-blue hover:text-gc-cream transition-colors duration-200"
           >
             {isLast
               ? (L ? "VERIFICATION →" : "VÉRIFICATION →")

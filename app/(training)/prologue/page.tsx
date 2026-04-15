@@ -78,7 +78,7 @@ export default function ProloguePage() {
         <div className="flex justify-center">
           <Link
             href="/module/0"
-            className="border border-gc-dark-blue text-gc-dark-blue px-8 py-3 font-sans text-xs tracking-widest hover:bg-gc-dark-blue hover:text-gc-cream transition-colors"
+            className="w-full sm:w-auto text-center border border-gc-dark-blue text-gc-dark-blue px-10 py-4 font-sans text-xs tracking-widest hover:bg-gc-dark-blue hover:text-gc-cream transition-colors duration-200"
           >
             {lang === "en" ? "BEGIN MODULE I →" : "COMMENCER LE MODULE I →"}
           </Link>

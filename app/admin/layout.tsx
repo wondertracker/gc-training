@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { GCSigil } from "@/components/gc-sigil";
+import { AdminNavLinks } from "@/components/admin-nav-links";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -24,30 +25,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           <p className="font-sans text-xs tracking-[0.25em] text-gc-gold mt-3">GRANDE CHARTE</p>
           <p className="font-sans text-xs tracking-widest text-gc-dim">ADMIN</p>
         </div>
-        <nav className="flex-1 py-4">
-          <Link
-            href="/admin"
-            className="flex items-center gap-3 px-5 py-3 text-gc-dim hover:text-gc-cream hover:bg-gc-mid-blue/20 transition-colors font-sans text-xs tracking-widest"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <rect x="1" y="1" width="5" height="5" stroke="currentColor" strokeWidth="1.2"/>
-              <rect x="8" y="1" width="5" height="5" stroke="currentColor" strokeWidth="1.2"/>
-              <rect x="1" y="8" width="5" height="5" stroke="currentColor" strokeWidth="1.2"/>
-              <rect x="8" y="8" width="5" height="5" stroke="currentColor" strokeWidth="1.2"/>
-            </svg>
-            DASHBOARD
-          </Link>
-          <Link
-            href="/admin/trainees"
-            className="flex items-center gap-3 px-5 py-3 text-gc-dim hover:text-gc-cream hover:bg-gc-mid-blue/20 transition-colors font-sans text-xs tracking-widest"
-          >
-            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-              <circle cx="7" cy="4" r="2.5" stroke="currentColor" strokeWidth="1.2"/>
-              <path d="M1.5 12c0-3.038 2.462-5.5 5.5-5.5s5.5 2.462 5.5 5.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
-            </svg>
-            TRAINEES
-          </Link>
-        </nav>
+        <AdminNavLinks />
         <div className="px-5 py-4 border-t border-gc-mid-blue">
           <Link
             href="/"
