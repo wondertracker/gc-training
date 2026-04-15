@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
 import { formatDateShort } from "@/lib/utils";
 
@@ -10,7 +10,7 @@ export default async function TraineesPage({
 }: {
   searchParams: { q?: string; sort?: string };
 }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const query = searchParams.q ?? "";
   const sort = searchParams.sort ?? "name";
 

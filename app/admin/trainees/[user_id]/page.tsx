@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
 import { formatDateTime, formatDateShort } from "@/lib/utils";
 
@@ -16,7 +16,7 @@ const moduleLabels = [
 ];
 
 export default async function TraineeDetailPage({ params }: { params: { user_id: string } }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: profile } = await supabase
     .from("profiles")

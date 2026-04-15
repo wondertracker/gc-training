@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic';
 
 import { notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { GCSigil } from "@/components/gc-sigil";
 import { MODULES } from "@/lib/training/data";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
@@ -9,7 +9,7 @@ import { formatLongDate } from "@/lib/utils";
 import { PrintButton } from "./print-button";
 
 export default async function CertificatePage({ params }: { params: { id: string } }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: certificate } = await supabase
     .from("certificates")

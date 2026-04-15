@@ -1,11 +1,11 @@
 export const dynamic = 'force-dynamic';
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
 import { formatDateShort } from "@/lib/utils";
 
 export default async function AdminDashboard() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Total trainees — count all profiles (no role filter; profiles may not have role='trainee')
   const { count: traineeCount } = await supabase
