@@ -74,6 +74,15 @@ export function HomeClient({ profile, session, progress, certificate, modules: i
         </div>
         <div className="flex items-center gap-6">
           <LangToggle lang={lang} onToggle={handleLangToggle} />
+          {profile?.role === "admin" && (
+            <Link
+              href="/admin"
+              className="font-sans text-gc-dim hover:text-gc-cream transition-colors"
+              style={{ fontSize: "10px", letterSpacing: "0.18em" }}
+            >
+              ADMIN →
+            </Link>
+          )}
           <button
             onClick={handleSignOut}
             className="text-gc-dim text-xs font-sans tracking-widest hover:text-gc-cream transition-colors"
