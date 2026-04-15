@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { MODULE_NUMBERS } from "@/lib/training/constants";
@@ -22,22 +23,23 @@ export default async function AdminDashboard() {
     .from("certificates")
     .select("*", { count: "exact", head: true });
 
-  // Module pass rates
-  const modulePassRates: { index: number; passCount: number; totalAttempts: number }[] = [];
-  for (let i = 0; i < 6; i++) {
-    const { count: passCount } = await supabase
-      .from("module_progress")
-      .select("*", { count: "exact", head: true })
-      .eq("module_index", i)
-      .eq("passed", true);
+  // Fetch all module_progress in one query — derive pass rate + avg score in JS
+  const { data: allProgress } = await supabase
+    .from("module_progress")
+    .select("module_index, best_score, total_questions, passed");
 
-    const { count: totalAttempts } = await supabase
-      .from("module_progress")
-      .select("*", { count: "exact", head: true })
-      .eq("module_index", i);
-
-    modulePassRates.push({ index: i, passCount: passCount ?? 0, totalAttempts: totalAttempts ?? 0 });
-  }
+  const moduleStats = Array.from({ length: 6 }, (_, i) => {
+    const rows = (allProgress ?? []).filter((p) => p.module_index === i);
+    const totalAttempts = rows.length;
+    const passCount = rows.filter((p) => p.passed).length;
+    const avgScore = totalAttempts > 0
+      ? rows.reduce((sum, p) => sum + (p.best_score ?? 0), 0) / totalAttempts
+      : 0;
+    const avgTotal = totalAttempts > 0
+      ? rows.reduce((sum, p) => sum + (p.total_questions ?? 3), 0) / totalAttempts
+      : 3;
+    return { index: i, totalAttempts, passCount, avgScore, avgTotal };
+  });
 
   // Recent completions (last 10 certificates)
   const { data: recentCerts } = await supabase
@@ -81,14 +83,18 @@ export default async function AdminDashboard() {
         ))}
       </div>
 
-      {/* Module pass rates */}
+      {/* Module stats */}
       <div className="mb-10">
-        <p className="font-sans text-xs tracking-[0.25em] text-gc-dim mb-5">MODULE PASS RATES</p>
+        <p className="font-sans text-xs tracking-[0.25em] text-gc-dim mb-5">MODULE PERFORMANCE</p>
         <div className="space-y-3">
-          {modulePassRates.map((m) => {
-            const rate = m.totalAttempts > 0
+          {moduleStats.map((m) => {
+            const passRate = m.totalAttempts > 0
               ? Math.round((m.passCount / m.totalAttempts) * 100)
               : 0;
+            const avgPct = m.avgTotal > 0
+              ? Math.round((m.avgScore / m.avgTotal) * 100)
+              : 0;
+            const avgDisplay = m.avgScore.toFixed(1);
             return (
               <div key={m.index} className="flex items-center gap-4">
                 <span className="font-serif text-gc-gold text-sm w-6 flex-shrink-0">
@@ -100,11 +106,13 @@ export default async function AdminDashboard() {
                 <div className="flex-1 h-1.5 bg-gc-mid-blue/40 rounded-full overflow-hidden">
                   <div
                     className="h-full bg-gc-green rounded-full transition-all"
-                    style={{ width: `${rate}%` }}
+                    style={{ width: `${avgPct}%` }}
                   />
                 </div>
-                <span className="font-sans text-xs text-gc-dim w-16 text-right flex-shrink-0">
-                  {rate}% ({m.passCount}/{m.totalAttempts})
+                <span className="font-sans text-xs text-gc-dim w-40 text-right flex-shrink-0">
+                  {m.totalAttempts > 0
+                    ? <>{passRate}% pass · {avgDisplay}/{Math.round(m.avgTotal)} avg</>
+                    : "—"}
                 </span>
               </div>
             );
