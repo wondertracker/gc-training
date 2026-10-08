@@ -85,6 +85,11 @@ export interface Quiz {
 }
 
 export interface Module {
+  objective: string;
+  duration: number;
+  image: string;
+  imageAlt: string;
+  source: string;
   number: string;
   label: string;
   sections: Section[];

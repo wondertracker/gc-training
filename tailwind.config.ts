@@ -1,5 +1,5 @@
 import type { Config } from "tailwindcss";
-import { BRAND } from "./lib/training/constants";
+import animate from "tailwindcss-animate";
 
 const config: Config = {
   darkMode: ["class"],
@@ -21,20 +21,20 @@ const config: Config = {
     },
     extend: {
       colors: {
-        "gc-dark-blue": BRAND.DARK_BLUE,
-        "gc-mid-blue": BRAND.MID_BLUE,
-        "gc-gold": BRAND.GOLD,
-        "gc-cream": BRAND.CREAM,
-        "gc-warm": BRAND.WARM,
-        "gc-body": BRAND.BODY_TEXT,
-        "gc-dim": BRAND.DIM,
-        "gc-rose": BRAND.ROSE,
-        "gc-red": BRAND.RED_ACCENT,
-        "gc-green": BRAND.GREEN_ACCENT,
+        "gc-dark-blue": "rgb(var(--bg) / <alpha-value>)",
+        "gc-mid-blue": "rgb(var(--line) / <alpha-value>)",
+        "gc-gold": "rgb(var(--accent) / <alpha-value>)",
+        "gc-cream": "rgb(var(--ink) / <alpha-value>)",
+        "gc-warm": "rgb(var(--soft) / <alpha-value>)",
+        "gc-body": "rgb(var(--ink) / <alpha-value>)",
+        "gc-dim": "rgb(var(--muted) / <alpha-value>)",
+        "gc-rose": "rgb(var(--accent) / <alpha-value>)",
+        "gc-red": "rgb(var(--negative) / <alpha-value>)",
+        "gc-green": "rgb(var(--positive) / <alpha-value>)",
       },
       fontFamily: {
-        serif: ["Georgia", "Times New Roman", "serif"],
-        sans: ["Helvetica Neue", "Helvetica", "Arial", "system-ui", "sans-serif"],
+        serif: ["GCDisplay", "Helvetica Neue", "Arial", "sans-serif"],
+        sans: ["GCText", "Helvetica Neue", "Arial", "sans-serif"],
       },
       keyframes: {
         "accordion-down": {
@@ -52,7 +52,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [animate],
 };
 
 export default config;

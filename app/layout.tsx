@@ -1,51 +1,32 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { Preferences } from "@/components/preferences";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
-import { Analytics } from '@vercel/analytics/react';
-import { SpeedInsights } from '@vercel/speed-insights/next';
-
 export const metadata: Metadata = {
-  title: "GC Training Programme — Grande Charte",
-  description: "Doctrinal initiation programme for ambassadors and partners of Maison Grande Charte.",
-  icons: {
-    icon: "/gc-sigle.png",
-    apple: "/gc-sigle.png",
-  },
-  openGraph: {
-    title: "GC Training Programme — Grande Charte",
-    description: "Doctrinal initiation programme for ambassadors and partners of Maison Grande Charte.",
-    url: "https://gc-training.vercel.app",
-    siteName: "Grande Charte Training Programme",
-    images: [
-      {
-        url: "https://gc-training.vercel.app/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Grande Charte — Champagne",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "GC Training Programme — Grande Charte",
-    description: "Doctrinal initiation programme for ambassadors and partners of Maison Grande Charte.",
-    images: ["https://gc-training.vercel.app/og-image.jpg"],
-  },
+  title: "La Maison, en pratique · Grande Charte",
+  description:
+    "Le parcours de formation interne de la Maison Grande Charte. Liberté. Temps. Audace.",
+  robots: { index: false, follow: false },
+  icons: { icon: "/gc-sigle.png", apple: "/gc-sigle.png" },
 };
-
-export default function RootLayout({
+const themeScript = `(function(){try{var t=localStorage.getItem('gc-theme');document.documentElement.dataset.theme=t==='blue'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches)?'blue':'light'}catch(e){}})()`;
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const lang = (await cookies()).get("gc-lang")?.value === "en" ? "en" : "fr";
   return (
-    <html lang="en">
+    <html lang={lang} suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/gc-sigle.png" />
-        <link rel="apple-touch-icon" href="/gc-sigle.png" />
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className="min-h-screen bg-gc-dark-blue text-gc-cream font-sans antialiased">
-        {children}
+      <body>
+        <Preferences key={lang} initialLanguage={lang}>
+          {children}
+        </Preferences>
         <Analytics />
         <SpeedInsights />
       </body>

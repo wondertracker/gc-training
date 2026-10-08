@@ -18,7 +18,7 @@ export const BRAND = {
 export const MODULE_LABELS_EN = [
   "Origin & Doctrine",
   "The Collections",
-  "Iroise 769 — In Depth",
+  "Iroise 769",
   "The Conversation",
   "Custodians & Experience",
   "International Presence",
@@ -27,7 +27,7 @@ export const MODULE_LABELS_EN = [
 export const MODULE_LABELS_FR = [
   "Origine et Doctrine",
   "Les Collections",
-  "Iroise 769 — En Profondeur",
+  "Iroise 769",
   "La Conversation",
   "Allocataires et Experience",
   "Presence Internationale",

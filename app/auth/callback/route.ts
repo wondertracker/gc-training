@@ -5,7 +5,13 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const type = searchParams.get("type");
-  const next = searchParams.get("next") ?? "/";
+  const requested = searchParams.get("next") ?? "/";
+  const next =
+    requested.startsWith("/") &&
+    !requested.startsWith("//") &&
+    !requested.includes("\\")
+      ? requested
+      : "/";
 
   if (code) {
     const supabase = await createClient();
@@ -19,5 +25,7 @@ export async function GET(request: Request) {
   }
 
   // Return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/login?error=auth_callback_failed`);
+  return NextResponse.redirect(
+    `${origin}/auth/login?error=auth_callback_failed`,
+  );
 }

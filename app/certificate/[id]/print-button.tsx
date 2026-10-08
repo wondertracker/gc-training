@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export function PrintButton({ label, hint }: { label: string; hint: string }) {
   return (

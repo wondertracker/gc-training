@@ -1,150 +1,123 @@
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-import { createAdminClient } from "@/lib/supabase/admin";
-import { MODULE_NUMBERS } from "@/lib/training/constants";
+export const dynamic = "force-dynamic";
+import { cookies } from "next/headers";
+import { requireAdmin } from "@/lib/supabase/require-admin";
+import { MODULES } from "@/lib/training/data";
 import { formatDateShort } from "@/lib/utils";
-
-export default async function AdminDashboard() {
-  const supabase = createAdminClient();
-
-  // Total trainees — count all profiles (no role filter; profiles may not have role='trainee')
-  const { count: traineeCount } = await supabase
-    .from("profiles")
-    .select("*", { count: "exact", head: true });
-
-  // Total sessions
-  const { count: sessionCount } = await supabase
-    .from("training_sessions")
-    .select("*", { count: "exact", head: true });
-
-  // Total certificates
-  const { count: certCount } = await supabase
-    .from("certificates")
-    .select("*", { count: "exact", head: true });
-
-  // Fetch all module_progress in one query — derive pass rate + avg score in JS
-  const { data: allProgress } = await supabase
-    .from("module_progress")
-    .select("module_index, best_score, total_questions, passed");
-
-  const moduleStats = Array.from({ length: 6 }, (_, i) => {
-    const rows = (allProgress ?? []).filter((p) => p.module_index === i);
-    const totalAttempts = rows.length;
-    const passCount = rows.filter((p) => p.passed).length;
-    const avgScore = totalAttempts > 0
-      ? rows.reduce((sum, p) => sum + (p.best_score ?? 0), 0) / totalAttempts
-      : 0;
-    const avgTotal = totalAttempts > 0
-      ? rows.reduce((sum, p) => sum + (p.total_questions ?? 3), 0) / totalAttempts
-      : 3;
-    return { index: i, totalAttempts, passCount, avgScore, avgTotal };
-  });
-
-  // Recent completions (last 10 certificates)
-  const { data: recentCerts } = await supabase
-    .from("certificates")
-    .select("*, profiles(full_name)")
-    .order("issued_at", { ascending: false })
-    .limit(10);
-
-  const completionRate = sessionCount
-    ? Math.round(((certCount ?? 0) / sessionCount) * 100)
-    : 0;
-
-  const moduleLabels = [
-    "Origin & Doctrine",
-    "The Collections",
-    "Iroise 769 — In Depth",
-    "The Conversation",
-    "Custodians & Experience",
-    "International Presence",
-  ];
-
+export default async function Dashboard() {
+  const s = await requireAdmin();
+  const en = (await cookies()).get("gc-lang")?.value === "en";
+  const modules = MODULES(en ? "en" : "fr");
+  const results = await Promise.all([
+    s
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .neq("role", "admin"),
+    s.from("training_sessions").select("id", { count: "exact", head: true }),
+    s.from("certificates").select("id", { count: "exact", head: true }),
+    s.from("module_progress").select("module_index,best_score,passed"),
+    s
+      .from("certificates")
+      .select("id,participant_name,overall_score,overall_total,issued_at")
+      .order("issued_at", { ascending: false })
+      .limit(10),
+  ]);
+  if (results.some((r) => r.error))
+    return (
+      <p className="wrap error" role="alert">
+        {en
+          ? "Training activity could not be loaded. Please retry."
+          : "L’activité n’a pas pu être chargée. Réessayez."}
+      </p>
+    );
+  const [users, sessions, certs, progress, recent] = results;
   return (
-    <div className="p-8">
-      <div className="mb-8">
-        <h1 className="font-serif text-2xl text-gc-cream mb-1">Dashboard</h1>
-        <p className="font-sans text-xs text-gc-dim tracking-widest">Overview of training activity</p>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+    <div className="wrap">
+      <p className="eyebrow">Administration</p>
+      <h1>{en ? "Training activity." : "L’activité du parcours."}</h1>
+      <p className="muted">
+        {en
+          ? "Saved progress and knowledge checks. This dashboard does not show who is currently online."
+          : "Progression enregistrée et vérifications de connaissances. Ce tableau ne montre pas les personnes connectées en temps réel."}
+      </p>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 my-10">
         {[
-          { label: "TRAINEES", value: traineeCount ?? 0 },
-          { label: "SESSIONS", value: sessionCount ?? 0 },
-          { label: "CERTIFICATES", value: certCount ?? 0 },
-          { label: "COMPLETION RATE", value: `${completionRate}%` },
-        ].map((stat) => (
-          <div key={stat.label} className="border border-gc-mid-blue px-5 py-5">
-            <p className="font-sans text-xs tracking-[0.2em] text-gc-dim mb-2">{stat.label}</p>
-            <p className="font-serif text-3xl text-gc-cream">{stat.value}</p>
+          [en ? "Participants" : "Participants", users.count || 0],
+          [en ? "Sessions" : "Parcours commencés", sessions.count || 0],
+          [en ? "Completion records" : "Attestations", certs.count || 0],
+          [
+            en ? "Completed sessions" : "Parcours terminés",
+            `${sessions.count ? Math.round(((certs.count || 0) / sessions.count) * 100) : 0}%`,
+          ],
+        ].map(([l, v]) => (
+          <div key={l} className="note">
+            <small>{l}</small>
+            <p className="text-3xl mt-3 mb-0">{v}</p>
           </div>
         ))}
       </div>
-
-      {/* Module stats */}
-      <div className="mb-10">
-        <p className="font-sans text-xs tracking-[0.25em] text-gc-dim mb-5">MODULE PERFORMANCE</p>
-        <div className="space-y-3">
-          {moduleStats.map((m) => {
-            const passRate = m.totalAttempts > 0
-              ? Math.round((m.passCount / m.totalAttempts) * 100)
-              : 0;
-            const avgPct = m.avgTotal > 0
-              ? Math.round((m.avgScore / m.avgTotal) * 100)
-              : 0;
-            const avgDisplay = m.avgScore.toFixed(1);
-            return (
-              <div key={m.index} className="flex items-center gap-4">
-                <span className="font-serif text-gc-gold text-sm w-6 flex-shrink-0">
-                  {MODULE_NUMBERS[m.index]}
-                </span>
-                <span className="font-sans text-xs text-gc-dim tracking-wide w-44 flex-shrink-0 truncate">
-                  {moduleLabels[m.index]}
-                </span>
-                <div className="flex-1 h-1.5 bg-gc-mid-blue/40 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gc-green rounded-full transition-all"
-                    style={{ width: `${avgPct}%` }}
-                  />
-                </div>
-                <span className="font-sans text-xs text-gc-dim w-40 text-right flex-shrink-0">
-                  {m.totalAttempts > 0
-                    ? <>{passRate}% pass · {avgDisplay}/{Math.round(m.avgTotal)} avg</>
-                    : "—"}
-                </span>
+      <h2>{en ? "Knowledge checks" : "Les vérifications"}</h2>
+      <p className="muted text-sm">
+        {en
+          ? "The average uses each participant’s best saved score, including records from the previous programme."
+          : "La moyenne utilise le meilleur score enregistré par participant, y compris les résultats de l’ancien parcours."}
+      </p>
+      <div className="module-list">
+        {modules.map((m, i) => {
+          const rows = (progress.data || []).filter(
+            (p) => p.module_index === i,
+          );
+          const passed = rows.filter((p) => p.passed).length;
+          const avg = rows.length
+            ? rows.reduce((n, p) => n + p.best_score, 0) / rows.length
+            : 0;
+          return (
+            <div className="module-row" key={i}>
+              <span className="module-number">{m.number}</span>
+              <div>
+                <h3>{m.label}</h3>
+                <p>
+                  {rows.length}{" "}
+                  {en
+                    ? "participants with a result"
+                    : "participants avec un résultat"}{" "}
+                  · {passed} {en ? "passed" : "validés"}
+                </p>
               </div>
-            );
-          })}
-        </div>
+              <div className="module-status">
+                {rows.length
+                  ? `${avg.toFixed(1)}/3`
+                  : en
+                    ? "No results"
+                    : "Aucun résultat"}
+                <br />
+                {en ? "Average best score" : "Moyenne des meilleurs scores"}
+              </div>
+            </div>
+          );
+        })}
       </div>
-
-      {/* Recent completions */}
-      {recentCerts && recentCerts.length > 0 && (
-        <div>
-          <p className="font-sans text-xs tracking-[0.25em] text-gc-dim mb-4">RECENT COMPLETIONS</p>
-          <div className="border border-gc-mid-blue">
-            {recentCerts.map((cert: any, i: number) => (
-              <div
-                key={cert.id}
-                className={`flex items-center justify-between px-5 py-3 border-b border-gc-mid-blue/40 last:border-0 ${
-                  i % 2 === 0 ? "bg-gc-mid-blue/10" : ""
-                }`}
-              >
-                <div>
-                  <p className="font-sans text-sm text-gc-cream">
-                    {cert.profiles?.full_name ?? cert.participant_name}
-                  </p>
-                  <p className="font-sans text-xs text-gc-dim mt-0.5">
-                    {cert.overall_score}/{cert.overall_total} · {Math.round((cert.overall_score / cert.overall_total) * 100)}%
-                  </p>
-                </div>
-                <p className="font-sans text-xs text-gc-dim">{formatDateShort(cert.issued_at)}</p>
-              </div>
-            ))}
+      <h2 className="mt-12">
+        {en ? "Recent completions" : "Les dernières attestations"}
+      </h2>
+      {recent.data?.length ? (
+        recent.data.map((c) => (
+          <div className="intro-row" key={c.id}>
+            <div>
+              <p>{c.participant_name}</p>
+              <small>
+                {c.overall_score}/{c.overall_total} ·{" "}
+                {formatDateShort(c.issued_at)}
+              </small>
+            </div>
+            <a href={`/certificate/${c.id}`}>{en ? "View" : "Consulter"} ↗</a>
           </div>
-        </div>
+        ))
+      ) : (
+        <p className="muted">
+          {en
+            ? "No completion records yet."
+            : "Aucune attestation pour le moment."}
+        </p>
       )}
     </div>
   );

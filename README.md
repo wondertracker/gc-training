@@ -1,153 +1,58 @@
-# GC Training Programme
+# Grande Charte · La Maison, en pratique
 
-Doctrinal initiation platform for Maison Grande Charte ambassadors. Built with Next.js 14, Supabase, and Tailwind CSS.
+V2 du parcours interne. Six modules, en français et en anglais, avec quatre étapes de lecture, trois questions de connaissances et une mise en situation écrite par module.
 
----
+## Ce qui change
 
-## Setup
+- Ambiance claire par défaut, bleu Maison et préférence de l’appareil. Choix conservé localement, sur tous les écrans.
+- Visuels réels de la Maison, navigation mobile, bibliothèque des repères avec recherche.
+- Reprise à l’étape quittée, réponses et carnet personnels sur l’appareil, export texte.
+- Contenu resserré et corrigé à partir de la brochure GC Brochure Pro 3. GC-5 2004 et 2007 à 3,6 g/L ; rosé GC-5 à 8 g/L. Les quantités sont les tirages des éditions, jamais un stock disponible.
+- Iroise : 769 jours et 60 mètres pour l’immersion historique. Distinction entre faits, observations sensorielles et hypothèses. Les nouvelles immersions ne reprennent pas automatiquement ces paramètres.
+- Conversation fondée sur l’écoute, précision commerciale et suivi concret. Une formation ne confère pas un mandat de représentation.
+- Tous les modules sont consultables. L’ordre est conseillé, sans verrou de lecture.
+- Attestation limitée aux vérifications de connaissances. Seuil existant conservé : 2/3. Les situations sont auto-évaluées, sans correction humaine ni prétention à une certification pratique.
+- Résultats calculés et enregistrés côté serveur. Les erreurs de sauvegarde sont visibles ; les nouvelles tentatives conservent le meilleur score et la première date de validation.
+- Administration bilingue et adaptée au mobile. Les indicateurs décrivent la progression et les meilleurs scores, pas une présence en ligne.
+- Next.js 16.4.0 et React 19.3.0. Paramètres de route et cookies asynchrones, proxy de session. Compilation Webpack conservée pour cette livraison.
 
-### 1. Clone and install
+## Décision sur les accès
 
-```bash
-git clone https://github.com/wondertracker/gc-training.git
-cd gc-training
-npm install
-```
+La connexion et l’inscription Supabase existantes sont conservées. Aucun nouveau statut « en attente », circuit d’approbation ou compte administrateur n’est créé. L’approbation par Philippe seul est reportée à une étape ultérieure.
 
-### 2. Configure environment variables
+Le schéma existant ne sépare pas les résultats par version du contenu. Les meilleurs scores cumulés et les attestations historiques restent disponibles. Ils ne sont pas présentés comme de nouvelles validations du contenu V2. Les anciens fichiers de contenu V1 et la maquette JSX restent des archives ; les routes actives utilisent `lib/training/content-v2.ts`.
 
-Copy the example file and fill in your Supabase credentials:
+## Lancer et vérifier
 
-```bash
-cp .env.local.example .env.local
-```
+Node.js 22 ou version ultérieure. Installer avec `npm ci`, puis :
 
-Edit `.env.local`:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-### 3. Run Supabase migration
-
-In the Supabase dashboard → SQL Editor, paste and run the contents of:
-
-```
-supabase/migrations/001_initial.sql
-```
-
-This creates the following tables:
-- `profiles` — user profiles (extends `auth.users`)
-- `training_sessions` — one per user
-- `module_progress` — one row per module per session
-- `certificates` — issued when all 6 modules are passed
-
-Row-level security policies are applied so users can only see their own data.
-
-### 4. Configure Supabase Auth
-
-In the Supabase dashboard:
-- **Authentication → Settings**: Disable "Confirm email" for development (or configure SMTP for production)
-- **Authentication → URL Configuration**: Add `http://localhost:3000/auth/callback` to "Redirect URLs"
-- For production, add your Vercel URL as well
-
-### 5. Run development server
-
-```bash
+```sh
 npm run dev
+npm run typecheck
+npm run lint
+npm test
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+`/preview` donne accès aux six modules, aux questionnaires, à la recherche et au carnet sans compte, uniquement en développement. Les scores de cet aperçu ne sont pas transmis à Supabase. Les routes `/preview` renvoient 404 dans une version de production.
 
----
+## Configuration existante
 
-## Setting admin role
+- `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` : accès public au projet Supabase.
+- `SUPABASE_SERVICE_ROLE_KEY` : uniquement côté serveur, nécessaire à l’enregistrement contrôlé et à l’administration. Ne jamais l’exposer au navigateur.
+- `NEXT_PUBLIC_APP_URL` : origine publique utilisée dans les liens d’attestation.
+- `RESEND_API_KEY`, `RESEND_FROM_EMAIL` : envoi demandé par le titulaire de l’attestation vers son propre e-mail. L’expéditeur doit être configuré. En son absence, le document reste consultable et imprimable ; l’interface indique que l’envoi n’est pas configuré.
 
-To grant admin access to a user, run this in the Supabase SQL Editor:
+Les secrets existants restent dans leur configuration sécurisée. La publication utilise le projet Vercel et le projet Supabase existants, sans ajouter de circuit d’approbation des inscriptions.
 
-```sql
-UPDATE profiles
-SET role = 'admin'
-WHERE id = 'paste-user-uuid-here';
-```
+## Limites et suite
 
-You can find user UUIDs in Supabase → Authentication → Users.
+1. Tester la connexion, une tentative complète, la reprise des scores et l’attestation avec un compte de test sur le véritable projet Supabase avant publication. Les essais locaux de la V2 ne prouvent pas ce fonctionnement distant.
+2. Vérifier les politiques réellement déployées. La migration historique `001_initial.sql` permet trop de modifications directes et contient des politiques d’administration récursives. Le nouveau contrôle côté serveur ne bloque pas, à lui seul, des écritures directes autorisées par une ancienne politique. La correction des permissions de données est distincte du futur circuit d’approbation des inscriptions. La migration `training_v2_server_owned_results` limite les participants à la lecture de leurs données et à la modification de leur nom/langue. Le rôle, les scores et les attestations sont écrits par le serveur. Les fonctions réservées aux déclencheurs ne sont plus appelables depuis le navigateur.
+3. Vérifier l’expéditeur d’e-mail et la réception effective. Aucun e-mail n’a été envoyé pendant les contrôles.
+4. Ajouter la vidéo de la nouvelle immersion avec sa date et les paramètres confirmés. Le parcours actuel indique que cette vidéo est à venir.
+5. Compléter les consignes de service propres aux cuvées à partir des recommandations validées de la Maison. La V2 ne fabrique pas de température ou de durée de garde universelle.
+6. Les polices de la Maison sont recherchées localement, avec des replis Helvetica/Arial. Aucun fichier propriétaire de police n’est distribué dans cette version.
+7. Avant un déploiement commercial, vérifier l’éligibilité de l’hébergement choisi. La V2 ne change aucun abonnement.
 
-Admins can access `/admin` to view the dashboard, trainee table, and individual trainee progress.
-
----
-
-## Deployment (Vercel)
-
-1. Push to GitHub
-2. Import the repository in Vercel
-3. Add all four environment variables in Vercel project settings
-4. Deploy — `vercel.json` is already configured
-
-In Supabase Auth settings, add your Vercel production URL to "Redirect URLs":
-```
-https://your-app.vercel.app/auth/callback
-```
-
----
-
-## Environment variables
-
-| Variable | Description |
-|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Your Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Your Supabase anon (public) key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Your Supabase service role key (admin operations) |
-| `NEXT_PUBLIC_APP_URL` | Your app URL (e.g. `https://gc-training.vercel.app`) |
-
----
-
-## Application structure
-
-```
-app/
-  auth/login/          Sign in / Register
-  auth/callback/       Supabase OAuth callback
-  (training)/          Auth-guarded training routes
-    page.tsx           Home: module grid
-    prologue/          Doctrinal prologue
-    module/[index]/    Module reading view
-    module/[index]/quiz/  Quiz (MCQ + scenario)
-    result/[index]/    Pass / fail result
-  certificate/[id]/    Printable certificate (public)
-  admin/               Admin section (role-guarded)
-    page.tsx           Dashboard
-    trainees/          Trainee table
-    trainees/[user_id] Trainee detail
-
-lib/
-  supabase/            Supabase client helpers
-  training/            All content and types
-    data-prologue.ts
-    data-modules-1-3.ts
-    data-modules-4-6.ts
-    data.ts            Re-exports + MODULES() function
-    types.ts
-    constants.ts
-```
-
----
-
-## Training logic
-
-- **Pass threshold**: 2 of 3 MCQ questions correct (≥ 2/3)
-- **Module progression**: Module N unlocks only when Module N-1 is passed
-- **Retakes**: Unlimited. `best_score` records the highest score across all attempts
-- **Certificate**: Automatically issued when all 6 modules are passed. Accessible at `/certificate/[id]`
-- **Language**: EN / FR togglable at any time, stored in `profiles.language`
-
----
-
-## Content
-
-All training content (prologues, sections, quizzes) lives in `/lib/training/data-modules-*.ts`. Content is sourced verbatim from `gc_training_v2_1.jsx`.
-
-To update content, edit those files directly. No database migration required for content changes.
+Référence technique de migration : [guide officiel Next.js 16](https://nextjs.org/docs/app/guides/upgrading/version-16).
