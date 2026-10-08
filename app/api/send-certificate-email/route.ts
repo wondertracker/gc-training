@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { sameOrigin } from "@/lib/training/request-origin";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getResend } from "@/lib/email/resend";
@@ -7,10 +8,7 @@ import {
   completionSubject,
 } from "@/lib/email/templates/completion";
 export async function POST(request: Request) {
-  if (
-    request.headers.get("origin") &&
-    request.headers.get("origin") !== new URL(request.url).origin
-  )
+  if (!sameOrigin(request))
     return NextResponse.json({ error: "Origin not allowed" }, { status: 403 });
   const auth = await createClient();
   const {

@@ -145,3 +145,10 @@ test("email escapes participant names and links", () => {
   assert.ok(html.includes("&amp;b=&quot;x&quot;"));
   assert.ok(html.includes("15/18"));
 });
+
+const { sameOrigin } = load("../lib/training/request-origin.ts");
+test("origin check uses external host and rejects foreign origins", () => {
+  assert.equal(sameOrigin(new Request("http://localhost:3010/api/quiz", {headers:{host:"127.0.0.1:3010",origin:"http://127.0.0.1:3010"}})),true);
+  assert.equal(sameOrigin(new Request("http://internal/api/quiz", {headers:{host:"gc-training.vercel.app","x-forwarded-proto":"https",origin:"https://gc-training.vercel.app"}})),true);
+  assert.equal(sameOrigin(new Request("http://internal/api/quiz", {headers:{host:"gc-training.vercel.app","x-forwarded-proto":"https",origin:"https://foreign.example"}})),false);
+});
